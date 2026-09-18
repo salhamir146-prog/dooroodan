@@ -24,6 +24,12 @@ export default function Header() {
   );
   const totalWishlist = useWishlistStore((state) => state.items.length);
 
+  const handleMegaEnter = (hasMega: string | boolean | undefined) => {
+    if (typeof hasMega === "string") {
+      setOpenMega(hasMega);
+    }
+  };
+
   return (
     <>
       <header className="site-header">
@@ -82,9 +88,7 @@ export default function Header() {
                 <li
                   key={item.title}
                   className={item.hasMega ? "has-mega" : ""}
-                  onMouseEnter={() =>
-                    item.hasMega && setOpenMega(item.hasMega)
-                  }
+                  onMouseEnter={() => handleMegaEnter(item.hasMega)}
                   onMouseLeave={() => setOpenMega(null)}
                 >
                   <a href={item.href} className={item.active ? "active" : ""}>
