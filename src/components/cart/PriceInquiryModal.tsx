@@ -1,0 +1,111 @@
+"use client";
+
+import { useState } from "react";
+import { X, AlertTriangle, CheckCircle2 } from "lucide-react";
+import type { CartItemType } from "@/store/cart";
+import { formatPrice } from "@/lib/utils";
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  items: CartItemType[];
+  total: number;
+}
+
+export default function PriceInquiryModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  items,
+  total,
+}: Props) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    // ⚠️ اینجا بعداً به Cloudflare Workers وصل می‌شه
+    setTimeout(() => {
+      setSubmitting(false);
+      setDone(true);
+      setTimeout(() => {
+        onSuccess();
+        setDone(false);
+        setName("");
+        setPhone("");
+      }, 2000);
+    }, 1000);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close" onClick={onClose}>
+          <X size={20} />
+        </button>
+
+        {!done ? (
+          <>
+            <div className="modal-icon">
+              <AlertTriangle size={40} />
+            </div>
+
+            <h3 className="modal-title">استعلام قیمت</h3>
+            <p className="modal-desc">
+              قیمت محصولات به دلیل نوسانات بازار ممکن است تغییر کرده باشد.
+              شماره تماس خود را وارد کنید تا قیمت جدید تا آخر امروز به شما
+              اطلاع داده شود.
+            </p>
+
+            <div className="modal-summary">
+              <strong>{items.length} محصول در سبد شما</strong>
+              <span>جمع فعلی: {formatPrice(total)} تومان</span>
+            </div>
+
+            <form onSubmit={handleSubmit} className="modal-form">
+              <input
+                type="text"
+                placeholder="نام و نام خانوادگی"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <input
+                type="tel"
+                placeholder="شماره تماس (۰۹۱۲...)"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                pattern="[0-9]{11}"
+                title="شماره موبایل ۱۱ رقمی"
+              />
+              <button
+                type="submit"
+                className="btn-primary-full"
+                disabled={submitting}
+              >
+                {submitting ? "در حال ارسال..." : "ارسال درخواست استعلام"}
+              </button>
+            </form>
+
+            <p className="modal-note">
+              📞 کارشناسان ما تا آخر امروز با شما تماس می‌گیرند.
+            </p>
+          </>
+        ) : (
+          <div className="modal-success">
+            <CheckCircle2 size={60} />
+            <h3>درخواست شما ثبت شد!</h3>
+            <p>به‌زودی قیمت جدید به شما اطلاع داده می‌شود.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
