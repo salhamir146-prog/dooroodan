@@ -4,7 +4,7 @@ import ProductGallery from "@/components/product/ProductGallery";
 import ProductInfo from "@/components/product/ProductInfo";
 import ProductTabs from "@/components/product/ProductTabs";
 import RelatedProducts from "@/components/product/RelatedProducts";
-import { SAMPLE_PRODUCTS } from "@/lib/products";
+import { getProduct } from "@/lib/api";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -12,15 +12,11 @@ interface Props {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const product = SAMPLE_PRODUCTS.find((p) => p.slug === slug);
+  const { product, related } = await getProduct(slug);
 
   if (!product) {
     notFound();
   }
-
-  const related = SAMPLE_PRODUCTS.filter(
-    (p) => p.category === product.category && p.id !== product.id
-  ).slice(0, 4);
 
   return (
     <>
