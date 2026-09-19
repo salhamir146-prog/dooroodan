@@ -21,13 +21,13 @@ interface InquiryInfo {
 
 interface CartStore {
   items: CartItemType[];
-  inquiry: InquiryInfo | null; // 👈 اطلاعات استعلام فعال
+  inquiry: InquiryInfo | null;
   addItem: (item: Omit<CartItemType, "quantity">) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
-  setInquiry: (info: InquiryInfo) => void; // 👈 ثبت استعلام
-  clearInquiry: () => void; // 👈 پاک کردن استعلام
+  setInquiry: (info: InquiryInfo) => void;
+  clearInquiry: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
 }
