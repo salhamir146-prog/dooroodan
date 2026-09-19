@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { X, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import type { CartItemType } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 
@@ -24,23 +24,51 @@ export default function PriceInquiryModal({
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setSubmitting(true);
-    // ⚠️ اینجا بعداً به Cloudflare Workers وصل می‌شه
-    setTimeout(() => {
+
+    try {
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName: name.trim(),
+          customerPhone: phone.trim(),
+          items: items.map((item) => ({
+            id: item.id,
+            title: item.title,
+            brand: item.brand,
+            price: item.price,
+            image: item.image,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setDone(true);
+        setTimeout(() => {
+          onSuccess();
+          setDone(false);
+          setName("");
+          setPhone("");
+        }, 2500);
+      } else {
+        setError(data.message || "خطا در ثبت استعلام");
+      }
+    } catch {
+      setError("خطا در ارتباط با سرور");
+    } finally {
       setSubmitting(false);
-      setDone(true);
-      setTimeout(() => {
-        onSuccess();
-        setDone(false);
-        setName("");
-        setPhone("");
-      }, 2000);
-    }, 1000);
+    }
   };
 
   return (
@@ -68,6 +96,13 @@ export default function PriceInquiryModal({
               <span>جمع فعلی: {formatPrice(total)} تومان</span>
             </div>
 
+            {error && (
+              <div className="modal-error">
+                <AlertTriangle size={16} />
+                <span>{error}</span>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="modal-form">
               <input
                 type="text"
@@ -75,6 +110,7 @@ export default function PriceInquiryModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
+                disabled={submitting}
               />
               <input
                 type="tel"
@@ -84,25 +120,36 @@ export default function PriceInquiryModal({
                 required
                 pattern="[0-9]{11}"
                 title="شماره موبایل ۱۱ رقمی"
+                disabled={submitting}
               />
               <button
                 type="submit"
                 className="btn-primary-full"
                 disabled={submitting}
               >
-                {submitting ? "در حال ارسال..." : "ارسال درخواست استعلام"}
+                {submitting ? (
+                  <>
+                    <Loader2 size={18} className="spin" />
+                    <span>در حال ارسال...</span>
+                  </>
+                ) : (
+                  <span>ارسال درخواست استعلام</span>
+                )}
               </button>
             </form>
 
             <p className="modal-note">
-              📞 کارشناسان ما تا آخر امروز با شما تماس می‌گیرند.
+             کارشناسان ما تا آخر امروز با شما تماس می‌گیرند.
             </p>
           </>
         ) : (
           <div className="modal-success">
             <CheckCircle2 size={60} />
             <h3>درخواست شما ثبت شد!</h3>
-            <p>به‌زودی قیمت جدید به شما اطلاع داده می‌شود.</p>
+            <p>
+              به‌زودی قیمت جدید به شماره <strong>{phone}</strong> اطلاع داده
+              می‌شود.
+            </p>
           </div>
         )}
       </div>
