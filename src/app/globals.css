@@ -3643,3 +3643,129 @@ ul {
   .admin-product-img { width: 60px; height: 60px; }
   .admin-product-actions { flex-direction: column; }
 }
+/* ============ ADMIN SIDEBAR BADGE ============ */
+.admin-sidebar-badge {
+  margin-right: auto;
+  font-size: 12px;
+}
+
+/* ============ ADMIN STAT ICONS ============ */
+.admin-stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-stat-icon.blue {
+  background: linear-gradient(135deg, rgba(74, 144, 217, 0.15), rgba(74, 144, 217, 0.05));
+  color: #4a90d9;
+}
+
+.admin-stat-icon.green {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(39, 174, 96, 0.05));
+  color: #27ae60;
+}
+
+.admin-stat-icon.gold {
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.15), rgba(243, 156, 18, 0.05));
+  color: #f39c12;
+}
+
+.admin-stat-icon.purple {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
+  color: #8b5cf6;
+}
+
+/* ============ ADMIN STAT CARDS (LINK) ============ */
+a.admin-stat-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ============ ADMIN QUICK ACTIONS ============ */
+.admin-quick-actions {
+  margin-top: 40px;
+}
+
+.admin-quick-actions h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0b3b5c;
+  margin-bottom: 20px;
+}
+
+.admin-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.admin-quick-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1.5px solid #e5eaf0;
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-quick-card:hover {
+  transform: translateY(-4px);
+  border-color: #4a90d9;
+  box-shadow: 0 12px 28px rgba(11, 59, 92, 0.1);
+}
+
+.admin-quick-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(74, 144, 217, 0.15), rgba(74, 144, 217, 0.05));
+  color: #4a90d9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-quick-icon.gold {
+  background: linear-gradient(135deg, rgba(243, 156, 18, 0.15), rgba(243, 156, 18, 0.05));
+  color: #f39c12;
+}
+
+.admin-quick-icon.green {
+  background: linear-gradient(135deg, rgba(39, 174, 96, 0.15), rgba(39, 174, 96, 0.05));
+  color: #27ae60;
+}
+
+.admin-quick-icon.purple {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05));
+  color: #8b5cf6;
+}
+
+.admin-quick-card strong {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1e2a3a;
+  margin-bottom: 4px;
+}
+
+.admin-quick-card small {
+  font-size: 12.5px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Admin logout button (already exists, but enhance) */
+.admin-logout-btn {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
