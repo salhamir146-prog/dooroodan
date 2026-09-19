@@ -1,8 +1,13 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "dooroodan",
+  "main": ".open-next/worker.js",
   "compatibility_date": "2026-09-17",
   "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
   "observability": {
     "enabled": true
   },
@@ -11,12 +16,6 @@
       "binding": "DB",
       "database_name": "dooroodan-db",
       "database_id": "1f32c0c0-8b1c-43ba-8dd1-e4a55e2156d5"
-    }
-  ],
-  "kv_namespaces": [
-    {
-      "binding": "KV",
-      "id": "PASTE_YOUR_KV_ID_HERE"
     }
   ]
 }
