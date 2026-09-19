@@ -19,31 +19,33 @@ const TAX_RATE = 0.09;
 
 export default function CartSummary() {
   const router = useRouter();
-  const { items, inquiry, setInquiry, clearInquiry, getTotalPrice, getTotalItems } =
-    useCartStore();
+  const {
+    items,
+    inquiry,
+    setInquiry,
+    clearInquiry,
+    getTotalPrice,
+    getTotalItems,
+  } = useCartStore();
 
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
+
   const [inquiryData, setInquiryData] = useState<any>(null);
   const [inquiryLoading, setInquiryLoading] = useState(false);
 
-  // ✅ استخراج ID (nullable ولی primitive)
-  const inquiryId: string | null = inquiry ? inquiry.id : null;
-
+  // بررسی وضعیت استعلام
   useEffect(() => {
-    // ✅ اینجا TypeScript مطمئن می‌شه که inquiryId یه string هست یا null
-    if (inquiryId === null) {
+    if (!inquiry) {
       setInquiryData(null);
       return;
     }
 
-    const currentId: string = inquiryId; // ✅ دیگه string قطعیه
-
     async function checkInquiry() {
       setInquiryLoading(true);
       try {
-        const res = await fetch(`/api/inquiries?id=${currentId}`);
+        const res = await fetch(`/api/inquiries?id=${inquiry!.id}`);
         const data = await res.json();
 
         if (data.success) {
@@ -68,7 +70,7 @@ export default function CartSummary() {
 
     const interval = setInterval(checkInquiry, 30000);
     return () => clearInterval(interval);
-  }, [inquiryId, clearInquiry]);
+  }, [inquiry, clearInquiry]);
 
   const subtotal = getTotalPrice();
   const discount = couponApplied ? subtotal * 0.1 : 0;
@@ -83,9 +85,9 @@ export default function CartSummary() {
     }
   };
 
-  const handleInquirySuccess = (id: string, phone: string) => {
+  const handleInquirySuccess = (inquiryId: string, phone: string) => {
     setInquiry({
-      id,
+      id: inquiryId,
       phone,
       createdAt: Date.now(),
     });
@@ -138,6 +140,7 @@ export default function CartSummary() {
           </button>
         </div>
 
+        {/* اگر استعلام نداده */}
         {!inquiry && (
           <>
             <div className="inquiry-alert">
@@ -158,6 +161,7 @@ export default function CartSummary() {
           </>
         )}
 
+        {/* اگر استعلام داده */}
         {inquiry && (
           <>
             {isPending && (
@@ -200,7 +204,11 @@ export default function CartSummary() {
                     <strong>{formatPrice(newTotal)} تومان</strong>
                   </div>
                   {priceDiff !== 0 && (
-                    <div className={`price-diff ${priceDiff > 0 ? "up" : "down"}`}>
+                    <div
+                      className={`price-diff ${
+                        priceDiff > 0 ? "up" : "down"
+                      }`}
+                    >
                       {priceDiff > 0 ? (
                         <>
                           <TrendingUp size={14} />
@@ -220,7 +228,7 @@ export default function CartSummary() {
 
                 <button
                   className="btn-checkout"
-                  onClick={() => router.push(`/track`)}
+                  onClick={() => router.push("/track")}
                 >
                   <CheckCircle2 size={18} />
                   <span>مشاهده و تایید قیمت جدید</span>
