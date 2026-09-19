@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-// PUT: ذخیره آدرس سفارش
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -33,9 +32,8 @@ export async function PUT(
       );
     }
 
-    // بررسی سفارش
     const order = await db
-      .prepare("SELECT id, status FROM orders WHERE id = ?")
+      .prepare("SELECT id FROM orders WHERE id = ?")
       .bind(id)
       .first();
 
@@ -46,7 +44,6 @@ export async function PUT(
       );
     }
 
-    // آپدیت آدرس
     await db
       .prepare(
         `UPDATE orders SET 
