@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-// POST: ثبت استعلام جدید از سمت مشتری
+// POST: ثبت استعلام
 export async function POST(request: Request) {
   try {
     const ctx = getCloudflareContext();
@@ -17,48 +17,41 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    // اعتبارسنجی
     if (!body.customerName || !body.customerPhone || !body.items) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "نام، شماره تماس و لیست محصولات الزامی است",
-        },
+        { success: false, message: "اطلاعات ناقص است" },
         { status: 400 }
       );
     }
 
     const id = crypto.randomUUID();
-
-    // ساخت JSON از آیتم‌ها
     const itemsJson = JSON.stringify(body.items);
 
-    // محاسبه‌ی جمع کل فعلی
     const oldTotal = body.items.reduce(
       (sum: number, item: any) => sum + item.price * item.quantity,
       0
     );
 
-    // بررسی تکراری بودن (همین شماره، همین محصولات در ۱۰ دقیقه اخیر)
+    // بررسی تکراری بودن
     const tenMinutesAgo = Math.floor(Date.now() / 1000) - 600;
     const recent = await db
       .prepare(
         `SELECT id FROM price_inquiries 
          WHERE customer_phone = ? 
          AND items = ? 
-         AND created_at > ?`
+         AND created_at > ?
+         AND status = 'pending'`
       )
       .bind(body.customerPhone, itemsJson, tenMinutesAgo)
       .first();
 
     if (recent) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "شما قبلاً استعلام ثبت کرده‌اید. لطفاً منتظر پاسخ بمانید.",
-        },
-        { status: 429 }
-      );
+      return NextResponse.json({
+        success: true,
+        id: recent.id,
+        message: "استعلام شما قبلاً ثبت شده است",
+        alreadyExists: true,
+      });
     }
 
     await db
@@ -78,7 +71,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "استعلام شما ثبت شد. به‌زودی قیمت جدید اطلاع داده می‌شود.",
+      message: "استعلام شما ثبت شد",
       id,
     });
   } catch (error: any) {
@@ -89,7 +82,7 @@ export async function POST(request: Request) {
   }
 }
 
-// GET: بررسی وضعیت استعلام با شماره تلفن
+// GET: دو حالت
 export async function GET(request: Request) {
   try {
     const ctx = getCloudflareContext();
@@ -97,35 +90,60 @@ export async function GET(request: Request) {
     const db = env.DB;
 
     const url = new URL(request.url);
+    const id = url.searchParams.get("id");
     const phone = url.searchParams.get("phone");
 
-    if (!phone) {
-      return NextResponse.json(
-        { success: false, message: "شماره تلفن الزامی است" },
-        { status: 400 }
-      );
+    // حالت ۱: با ID
+    if (id) {
+      const inquiry = await db
+        .prepare("SELECT * FROM price_inquiries WHERE id = ?")
+        .bind(id)
+        .first();
+
+      if (!inquiry) {
+        return NextResponse.json(
+          { success: false, message: "استعلام پیدا نشد" },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        inquiry: {
+          ...inquiry,
+          items: JSON.parse(inquiry.items),
+        },
+      });
     }
 
-    const { results } = await db
-      .prepare(
-        `SELECT * FROM price_inquiries 
-         WHERE customer_phone = ? 
-         ORDER BY created_at DESC 
-         LIMIT 10`
-      )
-      .bind(phone)
-      .all();
+    // حالت ۲: با شماره
+    if (phone) {
+      const { results } = await db
+        .prepare(
+          `SELECT * FROM price_inquiries 
+           WHERE customer_phone = ? 
+           ORDER BY created_at DESC 
+           LIMIT 10`
+        )
+        .bind(phone)
+        .all();
 
-    const inquiries = (results || []).map((r: any) => ({
-      ...r,
-      items: JSON.parse(r.items),
-    }));
+      const inquiries = (results || []).map((r: any) => ({
+        ...r,
+        items: JSON.parse(r.items),
+      }));
 
-    return NextResponse.json({
-      success: true,
-      count: inquiries.length,
-      inquiries,
-    });
+      return NextResponse.json({
+        success: true,
+        count: inquiries.length,
+        inquiries,
+      });
+    }
+
+    return NextResponse.json(
+      { success: false, message: "پارامتر نامعتبر" },
+      { status: 400 }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
