@@ -17,5 +17,11 @@
       "database_name": "dooroodan-db",
       "database_id": "1f32c0c0-8b1c-43ba-8dd1-e4a55e2156d5"
     }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "08ce920b82ae4e42bff534f0192a3b07"
+    }
   ]
 }
