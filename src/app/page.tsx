@@ -4,23 +4,17 @@ import {
   ShieldCheck,
   RotateCcw,
   Headphones,
-  Snowflake,
-  Shirt,
-  Wind,
-  Flame,
-  Tv,
-  Utensils,
   ArrowLeft,
   Gift,
   Star,
-  Quote,
 } from "lucide-react";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { formatPrice, discountPercent } from "@/lib/utils";
+import HeroSlider from "@/components/home/HeroSlider";
+import Categories from "@/components/home/Categories";
+import ProductsShowcase from "@/components/home/ProductsShowcase";
 import type { Product } from "@/types";
 
-// ============ تابع کمکی برای گرفتن محصولات ============
-async function getFeaturedProducts(): Promise<Product[]> {
+async function getProducts(limit = 12): Promise<Product[]> {
   try {
     const ctx = getCloudflareContext();
     const db = (ctx.env as any).DB;
@@ -28,7 +22,8 @@ async function getFeaturedProducts(): Promise<Product[]> {
     if (!db) return [];
 
     const { results } = await db
-      .prepare("SELECT * FROM products ORDER BY created_at DESC LIMIT 8")
+      .prepare("SELECT * FROM products ORDER BY created_at DESC LIMIT ?")
+      .bind(limit)
       .all();
 
     return (results || []).map((p: any) => ({
@@ -46,62 +41,23 @@ async function getFeaturedProducts(): Promise<Product[]> {
       inStock: p.in_stock === 1,
     }));
   } catch (error) {
-    console.error("getFeaturedProducts error:", error);
+    console.error("getProducts error:", error);
     return [];
   }
 }
 
-// ============ صفحه‌ی خانه ============
 export default async function Home() {
-  const products = await getFeaturedProducts();
+  const allProducts = await getProducts(12);
+
+  const featured = allProducts.slice(0, 6);
+  const onSale = allProducts
+    .filter((p) => p.oldPrice && p.oldPrice > p.price)
+    .slice(0, 6);
 
   return (
     <>
-      {/* ============ HERO ============ */}
-      <section className="hero">
-        <div className="hero-slider">
-          <div className="slide active" style={{ background: "linear-gradient(135deg, #0b3b5c 0%, #1a5a7a 100%)" }}>
-            <div className="container-main slide-inner">
-              <div className="slide-content">
-                <span className="slide-badge">✨ جدیدترین‌های ۱۴۰۴</span>
-                <h1>
-                  خانه‌ای مدرن با <span>دوو رودان</span>
-                </h1>
-                <p>
-                  جدیدترین لوازم خانگی هوشمند با گارانتی معتبر و قیمت رقابتی
-                </p>
-                <div className="slide-btns">
-                  <Link href="/products" className="btn btn-primary">
-                    مشاهده محصولات <ArrowLeft size={18} />
-                  </Link>
-                  <Link href="/products?sale=true" className="btn btn-outline-light">
-                    تخفیف‌ها
-                  </Link>
-                </div>
-              </div>
-              <div className="slide-visual">
-                <div className="floating-card card-a">
-                  <ShieldCheck size={20} />
-                  <div>
-                    <strong>گارانتی اصالت</strong>
-                    <small>۱۸ ماهه</small>
-                  </div>
-                </div>
-                <div className="floating-card card-b">
-                  <Truck size={20} />
-                  <div>
-                    <strong>ارسال سریع</strong>
-                    <small>سراسر کشور</small>
-                  </div>
-                </div>
-                <div className="visual-circle">
-                  <Snowflake size={130} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ============ HERO SLIDER ============ */}
+      <HeroSlider />
 
       {/* ============ TRUST BAR ============ */}
       <section className="trust-bar">
@@ -138,142 +94,15 @@ export default async function Home() {
       </section>
 
       {/* ============ CATEGORIES ============ */}
-      <section className="section">
-        <div className="container-main">
-          <div className="section-head">
-            <h2 className="section-title">دسته‌بندی محصولات</h2>
-            <p className="section-sub">دسته‌بندی مورد نظر خود را انتخاب کنید</p>
-          </div>
-
-          <div className="categories-grid">
-            <Link href="/products?cat=fridge" className="cat-card">
-              <div className="cat-icon"><Snowflake size={26} /></div>
-              <h4>یخچال و فریزر</h4>
-              <span>۱۲۰+ محصول</span>
-            </Link>
-            <Link href="/products?cat=washer" className="cat-card">
-              <div className="cat-icon"><Shirt size={26} /></div>
-              <h4>لباسشویی</h4>
-              <span>۸۵+ محصول</span>
-            </Link>
-            <Link href="/products?cat=cooler" className="cat-card">
-              <div className="cat-icon"><Wind size={26} /></div>
-              <h4>سرمایش و گرمایش</h4>
-              <span>۹۵+ محصول</span>
-            </Link>
-            <Link href="/products?cat=cooker" className="cat-card">
-              <div className="cat-icon"><Flame size={26} /></div>
-              <h4>پخت و پز</h4>
-              <span>۶۰+ محصول</span>
-            </Link>
-            <Link href="/products?cat=tv" className="cat-card">
-              <div className="cat-icon"><Tv size={26} /></div>
-              <h4>صوتی و تصویری</h4>
-              <span>۱۵۰+ محصول</span>
-            </Link>
-            <Link href="/products?cat=kitchen" className="cat-card">
-              <div className="cat-icon"><Utensils size={26} /></div>
-              <h4>لوازم آشپزخانه</h4>
-              <span>۲۰۰+ محصول</span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <Categories />
 
       {/* ============ FEATURED PRODUCTS ============ */}
-      <section className="section section-alt">
-        <div className="container-main">
-          <div className="section-head">
-            <h2 className="section-title">محصولات ویژه</h2>
-            <p className="section-sub">منتخبی از بهترین محصولات این هفته</p>
-          </div>
-
-          {products.length === 0 ? (
-            <div className="home-empty">
-              <p>هنوز محصولی اضافه نشده. بعداً برگردید!</p>
-            </div>
-          ) : (
-            <div className="products-grid">
-              {products.map((product) => {
-                const discount = product.oldPrice
-                  ? discountPercent(product.price, product.oldPrice)
-                  : 0;
-
-                return (
-                  <article key={product.id} className="product-card">
-                    {discount > 0 && (
-                      <span className="product-badge badge-sale">
-                        {discount}٪ تخفیف
-                      </span>
-                    )}
-                    {product.tags?.includes("new") && !discount && (
-                      <span className="product-badge badge-new">جدید</span>
-                    )}
-
-                    <Link href={`/products/${product.slug}`} className="product-media">
-                      <img
-                        src={product.image}
-                        alt={product.title}
-                        loading="lazy"
-                      />
-                    </Link>
-
-                    <div className="product-body">
-                      <span className="product-brand">{product.brand}</span>
-                      <h3 className="product-title">
-                        <Link href={`/products/${product.slug}`}>
-                          {product.title}
-                        </Link>
-                      </h3>
-
-                      <div className="product-rating">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            size={12}
-                            fill={
-                              i < Math.floor(product.rating)
-                                ? "currentColor"
-                                : "none"
-                            }
-                            color="currentColor"
-                          />
-                        ))}
-                        <span>({product.rating})</span>
-                      </div>
-
-                      <div className="product-price">
-                        <div className="price-main">
-                          {formatPrice(product.price)} <small>تومان</small>
-                        </div>
-                        {product.oldPrice && (
-                          <div className="price-old">
-                            {formatPrice(product.oldPrice)}
-                          </div>
-                        )}
-                      </div>
-
-                      <Link
-                        href={`/products/${product.slug}`}
-                        className="btn-add-cart"
-                      >
-                        <ArrowLeft size={16} />
-                        <span>مشاهده</span>
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-
-          <div className="center-btn">
-            <Link href="/products" className="btn btn-outline">
-              مشاهده همه محصولات <ArrowLeft size={16} />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ProductsShowcase
+        products={featured}
+        title="محصولات ویژه"
+        subtitle="منتخبی از بهترین محصولات این هفته"
+        viewAllLink="/products"
+      />
 
       {/* ============ PROMO BANNER ============ */}
       <section className="promo-banner">
@@ -284,7 +113,7 @@ export default async function Home() {
             <p>
               فرصت محدود! همین حالا خرید کن و از تخفیف‌های ویژه بهره‌مند شو
             </p>
-            <Link href="/products" className="btn btn-white">
+            <Link href="/products?sale=true" className="btn btn-white">
               مشاهده تخفیف‌ها <ArrowLeft size={16} />
             </Link>
           </div>
@@ -294,12 +123,24 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ============ ON SALE PRODUCTS ============ */}
+      {onSale.length > 0 && (
+        <ProductsShowcase
+          products={onSale}
+          title="تخفیف‌های ویژه"
+          subtitle="فرصت رو از دست نده!"
+          viewAllLink="/products?sale=true"
+        />
+      )}
+
       {/* ============ TESTIMONIALS ============ */}
       <section className="section">
         <div className="container-main">
           <div className="section-head">
             <h2 className="section-title">نظرات مشتریان</h2>
-            <p className="section-sub">تجربه خرید خود را با ما به اشتراک بگذارید</p>
+            <p className="section-sub">
+              تجربه خرید خود را با ما به اشتراک بگذارید
+            </p>
           </div>
 
           <div className="testimonials">
