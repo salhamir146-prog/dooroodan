@@ -5,11 +5,9 @@ import { useRouter } from "next/navigation";
 import {
   Tag,
   AlertTriangle,
-  ArrowLeft,
   Loader2,
   Clock,
   CheckCircle2,
-  CreditCard,
   TrendingUp,
   TrendingDown,
 } from "lucide-react";
@@ -27,30 +25,30 @@ export default function CartSummary() {
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
-
-  // وضعیت استعلام در حال بررسی
   const [inquiryData, setInquiryData] = useState<any>(null);
   const [inquiryLoading, setInquiryLoading] = useState(false);
 
-  // بررسی وضعیت استعلام وقتی inquiry وجود داره
-useEffect(() => {
-  const currentInquiryId = inquiry?.id;
+  // ✅ استخراج ID (nullable ولی primitive)
+  const inquiryId: string | null = inquiry ? inquiry.id : null;
 
-  if (!currentInquiryId) {
-    setInquiryData(null);
-    return;
-  }
+  useEffect(() => {
+    // ✅ اینجا TypeScript مطمئن می‌شه که inquiryId یه string هست یا null
+    if (inquiryId === null) {
+      setInquiryData(null);
+      return;
+    }
 
-  async function checkInquiry() {
-    setInquiryLoading(true);
-    try {
-      const res = await fetch(`/api/inquiries?id=${currentInquiryId}`);
+    const currentId: string = inquiryId; // ✅ دیگه string قطعیه
+
+    async function checkInquiry() {
+      setInquiryLoading(true);
+      try {
+        const res = await fetch(`/api/inquiries?id=${currentId}`);
         const data = await res.json();
 
         if (data.success) {
           setInquiryData(data.inquiry);
 
-          // اگه استعلام رد شده، پاک کن
           if (data.inquiry.status === "rejected") {
             clearInquiry();
             setInquiryData(null);
@@ -68,10 +66,9 @@ useEffect(() => {
 
     checkInquiry();
 
-    // هر ۳۰ ثانیه یک‌بار چک کن
     const interval = setInterval(checkInquiry, 30000);
     return () => clearInterval(interval);
-  }, [inquiry, clearInquiry]);
+  }, [inquiryId, clearInquiry]);
 
   const subtotal = getTotalPrice();
   const discount = couponApplied ? subtotal * 0.1 : 0;
@@ -86,16 +83,15 @@ useEffect(() => {
     }
   };
 
-  const handleInquirySuccess = (inquiryId: string, phone: string) => {
+  const handleInquirySuccess = (id: string, phone: string) => {
     setInquiry({
-      id: inquiryId,
+      id,
       phone,
       createdAt: Date.now(),
     });
     setInquiryOpen(false);
   };
 
-  // ====== حالت‌های مختلف ======
   const isPending = inquiryData?.status === "pending";
   const isResponded = inquiryData?.status === "responded";
   const newTotal = inquiryData?.new_total;
@@ -128,7 +124,6 @@ useEffect(() => {
           <span>{formatPrice(Math.round(total))} تومان</span>
         </div>
 
-        {/* Coupon */}
         <div className="coupon-box">
           <Tag size={16} />
           <input
@@ -143,9 +138,6 @@ useEffect(() => {
           </button>
         </div>
 
-        {/* ============ حالت‌ها ============ */}
-
-        {/* اگه استعلام نداده: دکمه استعلام */}
         {!inquiry && (
           <>
             <div className="inquiry-alert">
@@ -166,10 +158,8 @@ useEffect(() => {
           </>
         )}
 
-        {/* اگه استعلام داده: نمایش وضعیت */}
         {inquiry && (
           <>
-            {/* در انتظار تایید */}
             {isPending && (
               <>
                 <div className="inquiry-status-box pending">
@@ -188,7 +178,6 @@ useEffect(() => {
               </>
             )}
 
-            {/* اگه پاسخ داده شده */}
             {isResponded && newTotal && (
               <>
                 <div className="inquiry-status-box success">
@@ -239,7 +228,6 @@ useEffect(() => {
               </>
             )}
 
-            {/* در حال بارگذاری */}
             {inquiryLoading && !inquiryData && (
               <button className="btn-waiting" disabled>
                 <Loader2 size={18} className="spin" />
