@@ -13,12 +13,21 @@ export interface CartItemType {
   quantity: number;
 }
 
+interface InquiryInfo {
+  id: string;
+  phone: string;
+  createdAt: number;
+}
+
 interface CartStore {
   items: CartItemType[];
+  inquiry: InquiryInfo | null; // 👈 اطلاعات استعلام فعال
   addItem: (item: Omit<CartItemType, "quantity">) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  setInquiry: (info: InquiryInfo) => void; // 👈 ثبت استعلام
+  clearInquiry: () => void; // 👈 پاک کردن استعلام
   getTotalPrice: () => number;
   getTotalItems: () => number;
 }
@@ -27,6 +36,7 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      inquiry: null,
 
       addItem: (newItem) => {
         const items = get().items;
@@ -61,7 +71,11 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], inquiry: null }),
+
+      setInquiry: (info) => set({ inquiry: info }),
+
+      clearInquiry: () => set({ inquiry: null }),
 
       getTotalPrice: () =>
         get().items.reduce(
