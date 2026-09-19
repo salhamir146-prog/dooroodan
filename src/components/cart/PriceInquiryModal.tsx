@@ -8,7 +8,7 @@ import { formatPrice } from "@/lib/utils";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (inquiryId: string, phone: string) => void;
   items: CartItemType[];
   total: number;
 }
@@ -25,6 +25,7 @@ export default function PriceInquiryModal({
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [savedInquiryId, setSavedInquiryId] = useState("");
 
   if (!isOpen) return null;
 
@@ -54,13 +55,15 @@ export default function PriceInquiryModal({
       const data = await res.json();
 
       if (data.success) {
+        setSavedInquiryId(data.id);
         setDone(true);
+        // بعد از ۲ ثانیه، اطلاعات رو به Parent بده
         setTimeout(() => {
-          onSuccess();
+          onSuccess(data.id, phone.trim());
           setDone(false);
           setName("");
           setPhone("");
-        }, 2500);
+        }, 2000);
       } else {
         setError(data.message || "خطا در ثبت استعلام");
       }
@@ -139,7 +142,7 @@ export default function PriceInquiryModal({
             </form>
 
             <p className="modal-note">
-             کارشناسان ما تا آخر امروز با شما تماس می‌گیرند.
+            کارشناسان ما تا آخر امروز با شما تماس می‌گیرند.
             </p>
           </>
         ) : (
