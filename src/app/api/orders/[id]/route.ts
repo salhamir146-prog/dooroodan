@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-// GET: اطلاعات سفارش
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -31,7 +30,6 @@ export async function GET(
       );
     }
 
-    // آیتم‌های سفارش
     const { results: items } = await db
       .prepare("SELECT * FROM order_items WHERE order_id = ?")
       .bind(id)
