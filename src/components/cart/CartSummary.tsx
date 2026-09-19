@@ -27,7 +27,6 @@ export default function CartSummary() {
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
-  const [checking, setChecking] = useState(false);
 
   // وضعیت استعلام در حال بررسی
   const [inquiryData, setInquiryData] = useState<any>(null);
@@ -35,7 +34,10 @@ export default function CartSummary() {
 
   // بررسی وضعیت استعلام وقتی inquiry وجود داره
   useEffect(() => {
-    if (!inquiry) {
+    // ✅ اینجا اینو بگیر تو یه متغیر که TypeScript مطمئن باشه null نیست
+    const currentInquiry = inquiry;
+
+    if (!currentInquiry) {
       setInquiryData(null);
       return;
     }
@@ -43,7 +45,7 @@ export default function CartSummary() {
     async function checkInquiry() {
       setInquiryLoading(true);
       try {
-        const res = await fetch(`/api/inquiries?id=${inquiry.id}`);
+        const res = await fetch(`/api/inquiries?id=${currentInquiry.id}`);
         const data = await res.json();
 
         if (data.success) {
@@ -55,7 +57,6 @@ export default function CartSummary() {
             setInquiryData(null);
           }
         } else {
-          // استعلام پیدا نشد، پاک کن
           clearInquiry();
           setInquiryData(null);
         }
@@ -95,13 +96,9 @@ export default function CartSummary() {
     setInquiryOpen(false);
   };
 
-  // ====== حالت‌های مختلف دکمه ======
-
-  // ۱. اگه استعلام داده و در انتظار
+  // ====== حالت‌های مختلف ======
   const isPending = inquiryData?.status === "pending";
-  // ۲. اگه ادمین پاسخ داده
   const isResponded = inquiryData?.status === "responded";
-  // ۳. اگه ادمین قیمت جدید داده
   const newTotal = inquiryData?.new_total;
   const priceDiff = newTotal ? newTotal - subtotal : 0;
 
@@ -149,7 +146,7 @@ export default function CartSummary() {
 
         {/* ============ حالت‌ها ============ */}
 
-        {/* اگر استعلام نداده: دکمه استعلام */}
+        {/* اگه استعلام نداده: دکمه استعلام */}
         {!inquiry && (
           <>
             <div className="inquiry-alert">
@@ -170,7 +167,7 @@ export default function CartSummary() {
           </>
         )}
 
-        {/* اگر استعلام داده: نمایش وضعیت */}
+        {/* اگه استعلام داده: نمایش وضعیت */}
         {inquiry && (
           <>
             {/* در انتظار تایید */}
@@ -195,7 +192,6 @@ export default function CartSummary() {
             {/* اگه پاسخ داده شده */}
             {isResponded && newTotal && (
               <>
-                {/* نمایش قیمت جدید */}
                 <div className="inquiry-status-box success">
                   <CheckCircle2 size={20} />
                   <div>
@@ -225,7 +221,9 @@ export default function CartSummary() {
                       ) : (
                         <>
                           <TrendingDown size={14} />
-                          <span>{formatPrice(Math.abs(priceDiff))} تومان کاهش</span>
+                          <span>
+                            {formatPrice(Math.abs(priceDiff))} تومان کاهش
+                          </span>
                         </>
                       )}
                     </div>
