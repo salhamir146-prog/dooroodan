@@ -33,19 +33,18 @@ export default function CartSummary() {
   const [inquiryLoading, setInquiryLoading] = useState(false);
 
   // بررسی وضعیت استعلام وقتی inquiry وجود داره
-  useEffect(() => {
-    // ✅ اینجا اینو بگیر تو یه متغیر که TypeScript مطمئن باشه null نیست
-    const currentInquiry = inquiry;
+useEffect(() => {
+  const currentInquiryId = inquiry?.id;
 
-    if (!currentInquiry) {
-      setInquiryData(null);
-      return;
-    }
+  if (!currentInquiryId) {
+    setInquiryData(null);
+    return;
+  }
 
-    async function checkInquiry() {
-      setInquiryLoading(true);
-      try {
-        const res = await fetch(`/api/inquiries?id=${currentInquiry.id}`);
+  async function checkInquiry() {
+    setInquiryLoading(true);
+    try {
+      const res = await fetch(`/api/inquiries?id=${currentInquiryId}`);
         const data = await res.json();
 
         if (data.success) {
