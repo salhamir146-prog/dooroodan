@@ -1,19 +1,77 @@
 "use client";
 
-import { useState } from "react";
-import { Tag, AlertTriangle, ArrowLeft } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Tag,
+  AlertTriangle,
+  ArrowLeft,
+  Loader2,
+  Clock,
+  CheckCircle2,
+  CreditCard,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/utils";
 import PriceInquiryModal from "./PriceInquiryModal";
 
-const TAX_RATE = 0.09; // ۹٪ مالیات بر ارزش افزوده
+const TAX_RATE = 0.09;
 
 export default function CartSummary() {
-  const { getTotalPrice, items, getTotalItems } = useCartStore();
+  const router = useRouter();
+  const { items, inquiry, setInquiry, clearInquiry, getTotalPrice, getTotalItems } =
+    useCartStore();
+
   const [couponCode, setCouponCode] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
-  const [inquiryDone, setInquiryDone] = useState(false);
+  const [checking, setChecking] = useState(false);
+
+  // وضعیت استعلام در حال بررسی
+  const [inquiryData, setInquiryData] = useState<any>(null);
+  const [inquiryLoading, setInquiryLoading] = useState(false);
+
+  // بررسی وضعیت استعلام وقتی inquiry وجود داره
+  useEffect(() => {
+    if (!inquiry) {
+      setInquiryData(null);
+      return;
+    }
+
+    async function checkInquiry() {
+      setInquiryLoading(true);
+      try {
+        const res = await fetch(`/api/inquiries?id=${inquiry.id}`);
+        const data = await res.json();
+
+        if (data.success) {
+          setInquiryData(data.inquiry);
+
+          // اگه استعلام رد شده، پاک کن
+          if (data.inquiry.status === "rejected") {
+            clearInquiry();
+            setInquiryData(null);
+          }
+        } else {
+          // استعلام پیدا نشد، پاک کن
+          clearInquiry();
+          setInquiryData(null);
+        }
+      } catch {
+        // ignore
+      } finally {
+        setInquiryLoading(false);
+      }
+    }
+
+    checkInquiry();
+
+    // هر ۳۰ ثانیه یک‌بار چک کن
+    const interval = setInterval(checkInquiry, 30000);
+    return () => clearInterval(interval);
+  }, [inquiry, clearInquiry]);
 
   const subtotal = getTotalPrice();
   const discount = couponApplied ? subtotal * 0.1 : 0;
@@ -27,6 +85,25 @@ export default function CartSummary() {
       alert("کد تخفیف نامعتبر است");
     }
   };
+
+  const handleInquirySuccess = (inquiryId: string, phone: string) => {
+    setInquiry({
+      id: inquiryId,
+      phone,
+      createdAt: Date.now(),
+    });
+    setInquiryOpen(false);
+  };
+
+  // ====== حالت‌های مختلف دکمه ======
+
+  // ۱. اگه استعلام داده و در انتظار
+  const isPending = inquiryData?.status === "pending";
+  // ۲. اگه ادمین پاسخ داده
+  const isResponded = inquiryData?.status === "responded";
+  // ۳. اگه ادمین قیمت جدید داده
+  const newTotal = inquiryData?.new_total;
+  const priceDiff = newTotal ? newTotal - subtotal : 0;
 
   return (
     <>
@@ -70,35 +147,108 @@ export default function CartSummary() {
           </button>
         </div>
 
-        {/* ⚠️ Price Inquiry Alert */}
-        <div className="inquiry-alert">
-          <AlertTriangle size={18} />
-          <p>
-            به دلیل تغییر قیمت محصولات و نوسانات بازار، لطفاً قیمت را از
-            فروشنده استعلام بگیرید. حداکثر تا آخر امروز قیمت جدید به شما
-            اطلاع داده خواهد شد.
-          </p>
-        </div>
+        {/* ============ حالت‌ها ============ */}
 
-        {/* Buttons */}
-        {!inquiryDone ? (
-          <button
-            className="btn-inquiry"
-            onClick={() => setInquiryOpen(true)}
-            disabled={items.length === 0}
-          >
-            <AlertTriangle size={18} />
-            <span>استعلام قیمت از فروشنده</span>
-          </button>
-        ) : (
+        {/* اگر استعلام نداده: دکمه استعلام */}
+        {!inquiry && (
           <>
-            <div className="inquiry-done-badge">
-              ✅ استعلام شما ثبت شد. قیمت جدید به‌زودی اطلاع داده می‌شود.
+            <div className="inquiry-alert">
+              <AlertTriangle size={18} />
+              <p>
+                به دلیل تغییر قیمت محصولات و نوسانات بازار، لطفاً قیمت را از
+                فروشنده استعلام بگیرید.
+              </p>
             </div>
-            <button className="btn-checkout" disabled>
-              <ArrowLeft size={18} />
-              <span>در انتظار تایید قیمت</span>
+            <button
+              className="btn-inquiry"
+              onClick={() => setInquiryOpen(true)}
+              disabled={items.length === 0}
+            >
+              <AlertTriangle size={18} />
+              <span>استعلام قیمت از فروشنده</span>
             </button>
+          </>
+        )}
+
+        {/* اگر استعلام داده: نمایش وضعیت */}
+        {inquiry && (
+          <>
+            {/* در انتظار تایید */}
+            {isPending && (
+              <>
+                <div className="inquiry-status-box pending">
+                  <Clock size={20} />
+                  <div>
+                    <strong>در انتظار تایید قیمت</strong>
+                    <p>
+                      استعلام شما ثبت شد. به‌زودی قیمت جدید اطلاع داده می‌شود.
+                    </p>
+                  </div>
+                </div>
+                <button className="btn-waiting" disabled>
+                  <Clock size={18} />
+                  <span>در انتظار تایید قیمت...</span>
+                </button>
+              </>
+            )}
+
+            {/* اگه پاسخ داده شده */}
+            {isResponded && newTotal && (
+              <>
+                {/* نمایش قیمت جدید */}
+                <div className="inquiry-status-box success">
+                  <CheckCircle2 size={20} />
+                  <div>
+                    <strong>قیمت جدید آماده است!</strong>
+                    <p>می‌توانید قیمت را تایید و به پرداخت بروید.</p>
+                  </div>
+                </div>
+
+                <div className="price-change-box">
+                  <div className="price-change-row">
+                    <span>قیمت قبلی:</span>
+                    <span className="price-old-line">
+                      {formatPrice(subtotal)} تومان
+                    </span>
+                  </div>
+                  <div className="price-change-row price-new">
+                    <span>قیمت جدید:</span>
+                    <strong>{formatPrice(newTotal)} تومان</strong>
+                  </div>
+                  {priceDiff !== 0 && (
+                    <div className={`price-diff ${priceDiff > 0 ? "up" : "down"}`}>
+                      {priceDiff > 0 ? (
+                        <>
+                          <TrendingUp size={14} />
+                          <span>{formatPrice(priceDiff)} تومان افزایش</span>
+                        </>
+                      ) : (
+                        <>
+                          <TrendingDown size={14} />
+                          <span>{formatPrice(Math.abs(priceDiff))} تومان کاهش</span>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  className="btn-checkout"
+                  onClick={() => router.push(`/track`)}
+                >
+                  <CheckCircle2 size={18} />
+                  <span>مشاهده و تایید قیمت جدید</span>
+                </button>
+              </>
+            )}
+
+            {/* در حال بارگذاری */}
+            {inquiryLoading && !inquiryData && (
+              <button className="btn-waiting" disabled>
+                <Loader2 size={18} className="spin" />
+                <span>در حال بررسی...</span>
+              </button>
+            )}
           </>
         )}
 
@@ -110,10 +260,7 @@ export default function CartSummary() {
       <PriceInquiryModal
         isOpen={inquiryOpen}
         onClose={() => setInquiryOpen(false)}
-        onSuccess={() => {
-          setInquiryOpen(false);
-          setInquiryDone(true);
-        }}
+        onSuccess={handleInquirySuccess}
         items={items}
         total={Math.round(total)}
       />
