@@ -25,7 +25,6 @@ export default function PriceInquiryModal({
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
-  const [savedInquiryId, setSavedInquiryId] = useState("");
 
   if (!isOpen) return null;
 
@@ -55,9 +54,7 @@ export default function PriceInquiryModal({
       const data = await res.json();
 
       if (data.success) {
-        setSavedInquiryId(data.id);
         setDone(true);
-        // بعد از ۲ ثانیه، اطلاعات رو به Parent بده
         setTimeout(() => {
           onSuccess(data.id, phone.trim());
           setDone(false);
@@ -142,7 +139,7 @@ export default function PriceInquiryModal({
             </form>
 
             <p className="modal-note">
-            کارشناسان ما تا آخر امروز با شما تماس می‌گیرند.
+              📞 کارشناسان ما تا آخر امروز با شما تماس می‌گیرند.
             </p>
           </>
         ) : (
