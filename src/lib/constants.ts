@@ -101,6 +101,7 @@ export const SITE_INFO = {
     { title: "تخفیف‌ها", href: "/products?sale=true", hot: true },
     { title: "سوالات متداول", href: "/faq" },
     { title: "تماس با ما", href: "/contact" },
+    { title: "پیگیری استعلام", href: "/track" },
   ];
   
   // منوی موبایل
