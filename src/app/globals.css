@@ -4237,3 +4237,16 @@ a.admin-stat-card {
     width: 100%;
   }
 }
+/* ============ MODAL ERROR ============ */
+.modal-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  text-align: right;
+}
