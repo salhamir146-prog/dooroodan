@@ -2771,3 +2771,29 @@ ul {
     display: none;
   }
 }
+/* ============ LOADING & EMPTY ============ */
+.products-loading,
+.products-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: #64748b;
+}
+
+.products-loading svg {
+  color: #4a90d9;
+  margin: 0 auto 16px;
+}
+
+.products-empty {
+  font-size: 15px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
