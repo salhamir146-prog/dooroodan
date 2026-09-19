@@ -25,7 +25,6 @@ interface Order {
   total_amount: number;
   status: string;
   payment_status: string;
-  items?: any[];
 }
 
 export default function CheckoutPage() {
@@ -39,7 +38,6 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [step, setStep] = useState<"address" | "payment">("address");
 
-  // فرم آدرس
   const [form, setForm] = useState({
     customer_name: "",
     customer_phone: "",
@@ -109,7 +107,6 @@ export default function CheckoutPage() {
   };
 
   const handlePayment = () => {
-    // TODO: اتصال به درگاه پرداخت
     alert(
       "🚧 درگاه پرداخت به‌زودی فعال می‌شود.\n\nسفارش شما ثبت شد و کارشناسان با شما تماس خواهند گرفت."
     );
@@ -152,9 +149,10 @@ export default function CheckoutPage() {
       </div>
 
       <div className="container-main checkout-page">
-        {/* Progress */}
         <div className="checkout-progress">
-          <div className={`checkout-step ${step === "address" ? "active" : "done"}`}>
+          <div
+            className={`checkout-step ${step === "address" ? "active" : "done"}`}
+          >
             <div className="checkout-step-num">۱</div>
             <span>آدرس تحویل</span>
           </div>
@@ -166,7 +164,6 @@ export default function CheckoutPage() {
         </div>
 
         <div className="checkout-grid">
-          {/* Main Content */}
           <div className="checkout-main">
             {step === "address" ? (
               <div className="checkout-card">
@@ -313,7 +310,6 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Summary Sidebar */}
           <aside className="checkout-sidebar">
             <div className="checkout-summary">
               <h3>خلاصه سفارش</h3>
