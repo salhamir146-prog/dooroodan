@@ -6175,3 +6175,246 @@ a.admin-stat-card {
   .product-scroll-price { font-size: 14px; }
   .product-scroll-media { padding: 14px; }
 }
+/* ============ LOGIN PAGE ============ */
+.login-page {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f7f9fc 0%, #eaf2f7 100%);
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px 36px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(11, 59, 92, 0.1);
+  border: 1.5px solid #e5eaf0;
+  text-align: center;
+}
+
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.login-logo .brand-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #0b3b5c, #4a90d9);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 30px rgba(11, 59, 92, 0.3);
+}
+
+.login-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0b3b5c;
+  margin-bottom: 8px;
+}
+
+.login-sub {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 18px;
+  line-height: 1.7;
+}
+
+.login-security {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #dcfce7;
+  color: #166534;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.login-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.login-success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #dcfce7;
+  color: #166534;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  text-align: right;
+}
+
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-field label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.login-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f7f9fc;
+  border: 1.5px solid #e5eaf0;
+  border-radius: 12px;
+  padding: 0 16px;
+  transition: all 0.3s;
+}
+
+.login-input:focus-within {
+  border-color: #4a90d9;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(74, 144, 217, 0.1);
+}
+
+.login-input svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.login-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 14px 0;
+  font-size: 15px;
+  font-family: inherit;
+  color: #1e2a3a;
+  text-align: right;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px;
+  background: linear-gradient(135deg, #0b3b5c, #1a5a7a);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 15px;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(11, 59, 92, 0.35);
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-test-otp {
+  background: #fff8e6;
+  border: 1.5px dashed #f39c12;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+
+.login-test-otp strong {
+  display: block;
+  color: #92400e;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.login-test-otp span {
+  display: block;
+  font-size: 15px;
+  color: #1e2a3a;
+  margin-bottom: 4px;
+}
+
+.login-test-otp code {
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 18px;
+  font-weight: 800;
+  color: #f39c12;
+  letter-spacing: 2px;
+}
+
+.login-test-otp small {
+  display: block;
+  color: #92400e;
+  font-size: 11.5px;
+  margin-top: 6px;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.login-countdown {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.login-resend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #4a90d9;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.login-resend-btn:hover {
+  background: #
