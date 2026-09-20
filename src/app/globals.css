@@ -6417,4 +6417,42 @@ a.admin-stat-card {
 }
 
 .login-resend-btn:hover {
-  background: #
+  background: #f7f9fc;
+}
+
+.login-back-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.3s;
+}
+
+.login-back-btn:hover {
+  background: #f7f9fc;
+  color: #64748b;
+}
+
+.login-note {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 24px;
+  line-height: 1.7;
+}
+
+.login-note a {
+  color: #4a90d9;
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 30px 22px;
+  }
+  .login-title {
+    font-size: 20px;
+  }
+}
